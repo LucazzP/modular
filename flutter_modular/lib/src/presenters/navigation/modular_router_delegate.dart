@@ -167,7 +167,9 @@ class ModularRouterDelegate extends RouterDelegate<ModularRoute>
         rebuildPages();
         return await page.waitPop();
       } else if (router.routerName != currentConfiguration?.routerName) {
-        routerOutlatPages[router.path!] = router.routerOutlet.map((e) => ModularPage(key: ValueKey(e.path), router: e)).toList();
+        routerOutlatPages[router.path!] = router.routerOutlet.map(
+          (e) => ModularPage(key: ValueKey(e.path), router: e.copyWith(args: e.args?.copyWith(data: arguments))),
+        ).toList();
         final rootPage = ModularPage<T>(
           key: UniqueKey(),
           router: router,
