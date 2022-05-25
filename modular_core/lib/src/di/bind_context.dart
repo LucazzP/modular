@@ -25,8 +25,8 @@ abstract class BindContextImpl implements BindContext {
 
   @override
   @visibleForTesting
-  List<BindContract> getProcessBinds() =>
-      _binds.where((element) => !element.export).toList();
+  List<BindContract> getProcessBinds() => _binds;
+
   @override
   void changeBinds(List<BindContract> newBinds) {
     _binds.removeWhere((element) => !element.alwaysSerialized);
@@ -53,9 +53,8 @@ abstract class BindContextImpl implements BindContext {
       return _singletonBinds[type]!.cast<T>();
     }
 
-    var bind = getProcessBinds().firstWhere(
-        (b) => b.factoryFunction is T Function(Injector),
-        orElse: () => BindEmpty());
+    var bind = getProcessBinds()
+        .firstWhere((b) => b.factoryFunction is T Function(Injector), orElse: () => BindEmpty());
     if (bind is BindEmpty) {
       return null;
     }
@@ -111,8 +110,7 @@ abstract class BindContextImpl implements BindContext {
   Future<void> isReady() async {
     if (_mutableValue.isReadyFlag) return;
     _mutableValue.isReadyFlag = true;
-    final asyncBindList =
-        getProcessBinds().whereType<AsyncBindContract>().toList();
+    final asyncBindList = getProcessBinds().whereType<AsyncBindContract>().toList();
     for (var bind in asyncBindList) {
       final resolvedBind = await bind.convertToBind();
       _binds.insert(0, resolvedBind);
@@ -120,10 +118,9 @@ abstract class BindContextImpl implements BindContext {
   }
 
   @mustCallSuper
-  void instantiateSingletonBinds(
-      List<BindEntry> singletons, Injector injector) {
-    final filteredList = getProcessBinds()
-        .where((bind) => !bind.isLazy && !_containBind(singletons, bind));
+  void instantiateSingletonBinds(List<BindEntry> singletons, Injector injector) {
+    final filteredList =
+        getProcessBinds().where((bind) => !bind.isLazy && !_containBind(singletons, bind));
     for (final bindElement in filteredList) {
       var b = bindElement.factoryFunction(injector);
       if (!_singletonBinds.containsKey(b.runtimeType)) {
@@ -137,8 +134,8 @@ abstract class BindContextImpl implements BindContext {
   }
 
   bool _containBind(List<BindEntry> singletons, BindContract bind) {
-    return singletons.indexWhere((element) =>
-            element.bind.factoryFunction == bind.factoryFunction) !=
+    return singletons
+            .indexWhere((element) => element.bind.factoryFunction == bind.factoryFunction) !=
         -1;
   }
 
@@ -147,9 +144,8 @@ abstract class BindContextImpl implements BindContext {
 
     for (var singleton in _singletonBinds.values) {
       if (singleton.value is B) {
-        foundType = _singletonBinds.entries
-            .firstWhere((map) => map.value.value == singleton.value)
-            .key;
+        foundType =
+            _singletonBinds.entries.firstWhere((map) => map.value.value == singleton.value).key;
         break;
       }
     }
